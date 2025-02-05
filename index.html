@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- links -->
     <link rel="icon" type="png" href="img/icon.png" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="css/style.css" />
     <!-- Title -->
     <title>Weather App</title>
@@ -26,10 +23,9 @@
         align-items: center;
         z-index: 9999;
       }
-      #loading-video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+      #loading-gif {
+        width: 150px; /* Adjust size as needed */
+        height: auto;
       }
     </style>
   </head>
@@ -37,24 +33,15 @@
   <body>
     <!-- Loading Screen -->
     <div id="loading-screen">
-      <video id="loading-video" autoplay muted>
-        <video src="https://github.com/RealTimeStudios/Weather/raw/refs/heads/main/loading/Loading.gif" />
-
-
-        Your browser does not support the video tag.
-      </video>
+      <img id="loading-gif" src="https://github.com/RealTimeStudios/Weather/blob/main/loading/Loading.gif" alt="Loading..." />
     </div>
 
     <div class="pc" id="main-content" style="display: none;">
       <!-- nav section -->
       <nav>
         <ul>
-          <li>
-            <a class="active" href="index.html"><i class="fa-solid fa-location-arrow"></i></a>
-          </li>
-          <li>
-            <a href="search.html"><i class="fa-solid fa-magnifying-glass"></i></a>
-          </li>
+          <li><a class="active" href="index.html"><i class="fa-solid fa-location-arrow"></i></a></li>
+          <li><a href="search.html"><i class="fa-solid fa-magnifying-glass"></i></a></li>
         </ul>
       </nav>
       <!-- main section -->
@@ -106,11 +93,11 @@
       // Hide main content initially
       document.getElementById("main-content").style.display = "none";
 
-      // Show main content after the loading video ends
-      document.getElementById("loading-video").addEventListener("ended", function () {
+      // Simulate loading effect (adjust time if needed)
+      setTimeout(function () {
         document.getElementById("loading-screen").style.display = "none";
         document.getElementById("main-content").style.display = "block";
-      });
+      }, 3000); // 3 seconds delay
     </script>
   </body>
 </html>
