@@ -12,22 +12,46 @@
     <link rel="stylesheet" href="css/style.css" />
     <!-- Title -->
     <title>Weather App</title>
+    <style>
+      /* Loading screen styles */
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+      #loading-video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    </style>
   </head>
 
   <body>
-    <div class="pc">
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+      <video id="loading-video" autoplay muted>
+        <source src="loading/loading.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <div class="pc" id="main-content" style="display: none;">
       <!-- nav section -->
       <nav>
         <ul>
           <li>
-            <a class="active" href="index.html"
-              ><i class="fa-solid fa-location-arrow"></i
-            ></a>
+            <a class="active" href="index.html"><i class="fa-solid fa-location-arrow"></i></a>
           </li>
           <li>
-            <a href="search.html"
-              ><i class="fa-solid fa-magnifying-glass"></i
-            ></a>
+            <a href="search.html"><i class="fa-solid fa-magnifying-glass"></i></a>
           </li>
         </ul>
       </nav>
@@ -46,13 +70,9 @@
         <div class="weather-description">
           <div class="show-metric" id="metric">0°</div>
           <div class="weather-details">
-            <div class="weather-main" id="weather-main">Sunnen</div>
+            <div class="weather-main" id="weather-main">Sunny</div>
             <div class="h-f">
               <div class="show-humidity">Humidity: <span id="humidity">60</span></div>
-            
-              <div class="show-humidity">
-            
-              </div>
             </div>
           </div>
         </div>
@@ -64,13 +84,13 @@
               <img class="weather-icons" src="img/sun.png" />
             </div>
             <div class="temp-today">
-              <span id="temp-min-today">50°</span><span>/ </span
-              ><span id="temp-max-today">55°</span>
+              <span id="temp-min-today">50°</span><span>/ </span>
+              <span id="temp-max-today">55°</span>
             </div>
-            <div class="weather-main-today" id="weather-main">Sunnen</div>
+            <div class="weather-main-today" id="weather-main">Sunny</div>
           </div>
 
-          <!-- 5day Forecast -->
+          <!-- 3-day Forecast -->
           <div class="forecast">
             <h5>3 DAYS FORECAST</h5>
             <div id="forecast-box"></div>
@@ -78,7 +98,17 @@
         </div>
       </div>
     </div>
+
     <!-- script -->
-    <script src="js/main.js"></script>
+    <script>
+      // Hide main content initially
+      document.getElementById("main-content").style.display = "none";
+
+      // Show main content after the loading video ends
+      document.getElementById("loading-video").addEventListener("ended", function () {
+        document.getElementById("loading-screen").style.display = "none";
+        document.getElementById("main-content").style.display = "block";
+      });
+    </script>
   </body>
 </html>
