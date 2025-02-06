@@ -1,73 +1,66 @@
 let apiKey = "1e3e8f230b6064d27976e41163a82b77";
-let searchInput = document.querySelector(".searchinput");
-let suggestionsBox = document.createElement("ul");
-suggestionsBox.classList.add("suggestions");
-document.querySelector(".search").appendChild(suggestionsBox);
+let searchinput = document.querySelector(`.searchinput`);
 
-let cityList = [];
+async function search(city, state, country){
+    let url = await fetch(`https://api.openweathermap.org/data/2.5/weather?units=metric&q=${city},${state},${country}&appid=${apiKey}`);
 
-// Fetch city data
-fetch("cities.json")
-    .then(response => response.json())
-    .then(data => {
-        cityList = data;
-        console.log("City data loaded:", cityList); // Debugging
-    })
-    .catch(error => console.error("Error loading city list:", error));
-
-// Function to calculate Levenshtein Distance
-function getLevenshteinDistance(a, b) {
-    if (!a || !b) return 0;
+    if(url.ok){
+    let data = await url.json();
+    console.log(data);
     
-    const matrix = Array.from({ length: a.length + 1 }, (_, i) =>
-        Array.from({ length: b.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0))
-    );
+    let box = document.querySelector(".return");
+    box.style.display = "block";
 
-    for (let i = 1; i <= a.length; i++) {
-        for (let j = 1; j <= b.length; j++) {
-            matrix[i][j] = a[i - 1] === b[j - 1]
-                ? matrix[i - 1][j - 1]
-                : Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + 1);
-        }
+    let message = document.querySelector(".message");
+    message.style.display = "none";
+
+    let errormessage = document.querySelector( ".error-message");
+        errormessage.style.display = "none";
+
+    let weatherImg = document.querySelector(".weather-img");
+    document.querySelector(".city-name").innerHTML = data.name;
+    document.querySelector(".weather-temp").innerHTML = Math.floor(data.main.temp) + '°';
+    document.querySelector(".wind").innerHTML = Math.floor(data.wind.speed) + " m/s";
+    document.querySelector(".pressure").innerHTML = Math.floor(data.main.pressure) + " hPa";
+    document.querySelector('.humidity').innerHTML = Math.floor(data.main.humidity)+ "%";
+    document.querySelector(".sunrise").innerHTML =  new Date(data.sys.sunrise * 1000).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+    document.querySelector(".sunset").innerHTML =  new Date(data.sys.sunset * 1000).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+
+    if (data.weather[0].main === "Rain") {
+        weatherImg.src = "img/rain.png";
+      } else if (data.weather[0].main === "Clear") {
+        weatherImg.src = "img/sun.png";
+      } else if (data.weather[0].main === "Snow") {
+        weatherImg.src = "img/snow.png";
+      } else if (
+        data.weather[0].main === "Clouds" ||
+        data.weather[0].main === "Smoke"
+      ) {
+        weatherImg.src = "img/cloud.png";
+      } else if (
+        data.weather[0].main === "Mist" ||
+        data.weather[0].main === "Fog"
+      ) {
+        weatherImg.src = "img/mist.png";
+      } else if (data.weather[0].main === "Haze") {
+        weatherImg.src = "img/haze.png";
+      }
+    }else{
+        let box = document.querySelector(".return");
+    box.style.display = "none";
+
+    let message = document.querySelector(".message");
+    message.style.display = "none";
+
+    let errormessage = document.querySelector( ".error-message");
+        errormessage.style.display = "block";
     }
-
-    return matrix[a.length][b.length];
 }
 
-// Function to get closest city matches
-function getClosestCities(query) {
-    if (query.length < 2) {
-        suggestionsBox.innerHTML = "";
-        return;
-    }
 
-    let matches = cityList
-        .map(city => ({ city, score: getLevenshteinDistance(query.toLowerCase(), city.toLowerCase()) }))
-        .sort((a, b) => a.score - b.score)
-        .slice(0, 5); // Get top 5 closest matches
-
-    suggestionsBox.innerHTML = "";
-    matches.forEach(match => {
-        let listItem = document.createElement("li");
-        listItem.textContent = match.city;
-        listItem.onclick = () => {
-            searchInput.value = match.city;
-            suggestionsBox.innerHTML = "";
-        };
-        suggestionsBox.appendChild(listItem);
-    });
-}
-
-// Listen for input changes and show suggestions
-searchInput.addEventListener("input", () => getClosestCities(searchInput.value));
-
-// Trigger search on Enter key
-searchInput.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") {
-        let city = searchInput.value.trim();
-        if (city) {
-            search(city); // Call search function
-            suggestionsBox.innerHTML = ""; // Hide suggestions
-        }
-    }
-});
+searchinput.addEventListener('keydown', function(event) {
+    if (event.keyCode === 13 || event.which === 13) {
+        search(searchinput.value);
+        console.log("worked")
+      }
+  });
