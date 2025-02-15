@@ -47,7 +47,7 @@
       <div id="screen">
         <div class="city-name">
           <i class="fa-solid fa-map-pin"></i>
-          <h1 id="city-name">Mumbai</h1>
+          <h1 id="city-name">Fetching location...</h1>
         </div>
         <div class="weather-icon-css">
           <img class="weather-icon" src="img/sun.png" alt="World Icon" />
@@ -55,9 +55,9 @@
         <div class="weather-description">
           <div class="show-metric" id="metric">0°</div>
           <div class="weather-details">
-            <div class="weather-main" id="weather-main">Sunny</div>
+            <div class="weather-main" id="weather-main">Loading...</div>
             <div class="h-f">
-              <div class="show-humidity">Humidity: <span id="humidity">60</span></div>
+              <div class="show-humidity">Humidity: <span id="humidity">--</span></div>
             </div>
           </div>
         </div>
@@ -67,19 +67,51 @@
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         if (sessionStorage.getItem("videoPlayed") === "true") {
-          // If the video has played in this session, hide the loading screen immediately
           document.getElementById("loading-screen").style.display = "none";
           document.getElementById("main-content").style.display = "block";
         } else {
-          // Play the video and set the session flag
           document.getElementById("loading-video").addEventListener("ended", function () {
             document.getElementById("loading-screen").style.display = "none";
             document.getElementById("main-content").style.display = "block";
-            sessionStorage.setItem("videoPlayed", "true"); // Set flag for this session
+            sessionStorage.setItem("videoPlayed", "true");
           });
         }
+        
+        // Get user location
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            function (position) {
+              const lat = position.coords.latitude;
+              const lon = position.coords.longitude;
+              fetchWeather(lat, lon);
+            },
+            function (error) {
+              console.error("Error getting location:", error);
+              document.getElementById("city-name").innerText = "Location access denied";
+            }
+          );
+        } else {
+          document.getElementById("city-name").innerText = "Geolocation not supported";
+        }
       });
-
+      
+      function fetchWeather(lat, lon) {
+        const apiKey = "27489082aa41251e257d12bb346ed29e"; // Replace with your API key
+        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+        
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById("city-name").innerText = data.name;
+            document.getElementById("metric").innerText = `${Math.round(data.main.temp)}°C`;
+            document.getElementById("weather-main").innerText = data.weather[0].main;
+            document.getElementById("humidity").innerText = `${data.main.humidity}%`;
+          })
+          .catch(error => {
+            console.error("Error fetching weather data:", error);
+          });
+      }
+      
       // Allow skipping the video with Ctrl+Enter
       document.addEventListener("keydown", (e) => {
         if (e.ctrlKey && e.key === "Enter") {
