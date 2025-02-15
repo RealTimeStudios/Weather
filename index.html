@@ -35,10 +35,7 @@
         Your browser does not support the video tag.
       </video>
     </div>
-    <script>
-   document.addEventListener("keydown", (e) => { if (e.ctrlKey && e.key === "Enter") document.getElementById("loading-video").dispatchEvent(new Event("ended")); });
-    </script>
-    
+
     <div class="pc" id="main-content" style="display: none;">
       <nav>
         <ul>
@@ -68,10 +65,26 @@
     </div>
 
     <script>
-      document.getElementById("main-content").style.display = "none";
-      document.getElementById("loading-video").addEventListener("ended", function () {
-        document.getElementById("loading-screen").style.display = "none";
-        document.getElementById("main-content").style.display = "block";
+      document.addEventListener("DOMContentLoaded", function () {
+        if (sessionStorage.getItem("videoPlayed") === "true") {
+          // If the video has played in this session, hide the loading screen immediately
+          document.getElementById("loading-screen").style.display = "none";
+          document.getElementById("main-content").style.display = "block";
+        } else {
+          // Play the video and set the session flag
+          document.getElementById("loading-video").addEventListener("ended", function () {
+            document.getElementById("loading-screen").style.display = "none";
+            document.getElementById("main-content").style.display = "block";
+            sessionStorage.setItem("videoPlayed", "true"); // Set flag for this session
+          });
+        }
+      });
+
+      // Allow skipping the video with Ctrl+Enter
+      document.addEventListener("keydown", (e) => {
+        if (e.ctrlKey && e.key === "Enter") {
+          document.getElementById("loading-video").dispatchEvent(new Event("ended"));
+        }
       });
     </script>
   </body>
