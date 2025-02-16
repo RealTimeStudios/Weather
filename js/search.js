@@ -21,15 +21,27 @@ async function search(city) {
 
         let errormessage = document.querySelector(".error-message");
         errormessage.style.display = "none";
-
         let weatherImg = document.querySelector(".weather-img");
         document.querySelector(".city-name").innerHTML = data.name;
-        document.querySelector(".weather-temp").innerHTML = Math.floor(data.main.temp) + '°';
+        document.querySelector(".weather-temp").innerHTML = Math.floor(data.main.temp) + "°";
         document.querySelector(".wind").innerHTML = Math.floor(data.wind.speed) + " m/s";
         document.querySelector(".pressure").innerHTML = Math.floor(data.main.pressure) + " hPa";
-        document.querySelector('.humidity').innerHTML = Math.floor(data.main.humidity) + "%";
-        document.querySelector(".sunrise").innerHTML = new Date(data.sys.sunrise * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        document.querySelector(".sunset").innerHTML = new Date(data.sys.sunset * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        document.querySelector(".humidity").innerHTML = Math.floor(data.main.humidity) + "%";
+        
+        // Convert UTC time to local time using timezone offset
+        function convertToLocalTime(utcTimestamp, timezoneOffset) {
+            let localTime = new Date((utcTimestamp + timezoneOffset) * 1000);
+            let hours = localTime.getUTCHours().toString().padStart(2, "0");
+            let minutes = localTime.getUTCMinutes().toString().padStart(2, "0");
+            return `${hours}:${minutes}`;
+        }
+        
+        // Get timezone offset from API
+        let timezoneOffset = data.timezone; // Offset in seconds
+        
+        document.querySelector(".sunrise").innerHTML = convertToLocalTime(data.sys.sunrise, timezoneOffset);
+        document.querySelector(".sunset").innerHTML = convertToLocalTime(data.sys.sunset, timezoneOffset);
+        
 
         // Update weather icon
         let weatherCondition = data.weather[0].main;
@@ -51,6 +63,7 @@ async function search(city) {
         document.querySelector(".error-message").style.display = "block";
     }
 }
+
 
 // Function to check if a city is available in OpenWeather API
 async function isValidCity(city) {
