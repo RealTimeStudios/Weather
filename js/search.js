@@ -3,10 +3,22 @@ let apiKeyAutoFill = "pk.b6327c1036d314f333a763635aef271a"; // LocationIQ API Ke
 let searchInput = document.querySelector(".searchinput");
 let suggestionBox = document.getElementById("suggestions");
 
+// Function to fetch AQI data
+async function fetchAQI(lat, lon) {
+    let url = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`;
+    let response = await fetch(url);
+    if (response.ok) {
+        let data = await response.json();
+        return data.list[0].main.aqi; // AQI value (1 to 5)
+    } else {
+        console.error("Error fetching AQI data");
+        return null;
+    }
+}
+
 // Function to fetch weather data
 async function search(city) {
     let url = `https://api.openweathermap.org/data/2.5/weather?units=metric&q=${city}&appid=${apiKey}`;
-
     let response = await fetch(url);
 
     if (response.ok) {
@@ -27,7 +39,7 @@ async function search(city) {
         document.querySelector(".wind").innerHTML = Math.floor(data.wind.speed) + " m/s";
         document.querySelector(".pressure").innerHTML = Math.floor(data.main.pressure) + " hPa";
         document.querySelector(".humidity").innerHTML = Math.floor(data.main.humidity) + "%";
-        
+
         // Convert UTC time to local time using timezone offset
         function convertToLocalTime(utcTimestamp, timezoneOffset) {
             let localTime = new Date((utcTimestamp + timezoneOffset) * 1000);
@@ -35,13 +47,20 @@ async function search(city) {
             let minutes = localTime.getUTCMinutes().toString().padStart(2, "0");
             return `${hours}:${minutes}`;
         }
-        
+
         // Get timezone offset from API
         let timezoneOffset = data.timezone; // Offset in seconds
-        
         document.querySelector(".sunrise").innerHTML = convertToLocalTime(data.sys.sunrise, timezoneOffset);
         document.querySelector(".sunset").innerHTML = convertToLocalTime(data.sys.sunset, timezoneOffset);
-        
+
+// Fetch and update AQI data
+let aqi = await fetchAQI(data.coord.lat, data.coord.lon);
+if (aqi !== null) {
+    document.querySelector(".aqi").innerHTML = `Pollution Level: <strong>${aqi}</strong>`;
+} else {
+    document.querySelector(".aqi").innerHTML = "Pollution Level: <strong>N/A</strong>";
+}
+
 
         // Update weather icon
         let weatherCondition = data.weather[0].main;
@@ -63,7 +82,6 @@ async function search(city) {
         document.querySelector(".error-message").style.display = "block";
     }
 }
-
 
 // Function to check if a city is available in OpenWeather API
 async function isValidCity(city) {
